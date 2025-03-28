@@ -25,6 +25,12 @@ export const useWebSocket = ({
   const isConnecting = useRef<boolean>(false);
   const reconnectCount = useRef<number>(0);
 
+  const urlRef = useRef(url);
+
+  useEffect(() => {
+    urlRef.current = url;
+  }, [url]);
+
   const clearExistingSocket = useCallback(() => {
     if (socket.current) {
       socket.current.close();
@@ -38,8 +44,8 @@ export const useWebSocket = ({
     clearExistingSocket();
 
     setSocketStatus("connecting");
-    console.log(`Connecting to WebSocket: ${url}`);
-    const ws = new WebSocket(url);
+    console.log(`Connecting to WebSocket: ${urlRef.current}`);
+    const ws = new WebSocket(urlRef.current);
 
     ws.onopen = () => {
       if (!isMounted.current) {
@@ -99,7 +105,6 @@ export const useWebSocket = ({
 
     socket.current = ws;
   }, [
-    url,
     onMessage,
     onOpen,
     onClose,

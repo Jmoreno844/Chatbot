@@ -26,7 +26,7 @@ const navItems = [
   { path: "/home", label: "Home", icon: Home },
   { path: "/docs", label: "Documentos", icon: FileText },
   { path: "/chat", label: "Chat", icon: MessageSquare },
-  { path: "/imagenes", label: "Genera Imagenes", icon: Image },
+  { path: "/image-generation", label: "Genera Imagenes", icon: Image },
 ];
 
 const Sidebar = () => {

@@ -10,9 +10,13 @@ from app.apps.chat.services.gemini_service import GeminiChatService
 from google import genai
 from app.config import settings
 from app.router import api_router
+from app.config.base import Settings, get_settings  # Import settings
 import logging
 
-# Add these imports
+from app.apps.image_generation.services.image_generation_service import (
+    ImageGenerationService,
+)
+from app.apps.image_generation.api import router as image_router, setup_image_store
 from app.apps.rag.services.embedding_service import EmbeddingService
 from app.apps.rag.utils.vector_store import CloudVectorStore
 import os
@@ -39,12 +43,17 @@ async def lifespan(app: FastAPI):
     BUCKET_NAME = os.getenv("GCS_BUCKET_NAME", "your-gcs-bucket-name")
     GCS_PROJECT_ID = os.getenv("GCS_PROJECT_ID", "your-gcs-project-id")
 
+    logger.info(f"Initializing with GCS_PROJECT_ID: {GCS_PROJECT_ID}")
+
     # Initialize Gemini service
     gemini_api_key = settings.GEMINI_API_KEY
     genai_client = genai.Client(api_key=gemini_api_key)
     app.state.chat_service = GeminiChatService(genai_client)
 
-    # Initialize RAG services
+    # Initialize the image generation service with Vertex AI
+    app.state.image_generation_service = (
+        ImageGenerationService()
+    )  # Initialize RAG services
     app.state.embedding_service = EmbeddingService()
     app.state.vector_store = CloudVectorStore(
         bucket_name=BUCKET_NAME, project_id=GCS_PROJECT_ID
@@ -52,6 +61,9 @@ async def lifespan(app: FastAPI):
 
     # Load embeddings from cloud storage
     app.state.vector_store.load_from_cloud()
+
+    # Setup image store with cleanup task
+    setup_image_store(app)
 
     yield
 
@@ -107,3 +119,9 @@ app.include_router(api_router, prefix=settings.API_PREFIX)
 @app.get("/health", tags=["health"])
 async def health_check():
     return {"status": "healthy"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)

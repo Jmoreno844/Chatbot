@@ -35,7 +35,10 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({
         }`}
       >
         <Navbar />
-        <main className="flex-1 p-4">{children}</main>
+        {/* Added extra top padding to offset the floating navbar */}
+        <main className="flex-1 flex flex-col pt-16 h-[calc(100vh-4rem)]">
+          {children}
+        </main>
       </div>
     </div>
   );

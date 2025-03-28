@@ -29,3 +29,55 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
+
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .hide-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  /* Animation utilities inspired by Shadcn */
+  .animate-in {
+    animation-duration: 150ms;
+    animation-timing-function: cubic-bezier(0.1, 0.99, 0.1, 1);
+    animation-fill-mode: both;
+  }
+
+  .fade-in-20 {
+    animation-name: fadeIn;
+    animation-duration: 120ms;
+  }
+
+  .zoom-in-95 {
+    animation-name: zoomIn;
+    transform-origin: top center;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes zoomIn {
+    from {
+      transform: scale(0.95);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  .duration-100 {
+    animation-duration: 100ms;
+  }
+}

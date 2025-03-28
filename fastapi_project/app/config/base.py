@@ -30,6 +30,7 @@ class Settings(BaseSettings):
 
     # Storage
     GCS_PROJECT_ID: str
+    GOOGLE_LOCATION: str = "us-east1"
     GCS_BUCKET_NAME: str
 
     HF_TOKEN: Optional[str] = None
