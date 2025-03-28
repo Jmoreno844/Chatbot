@@ -1,0 +1,11 @@
+TechNova Solutions – Inventory & Order Fulfillment
+
+5.1 Warehouse Procedures
+Stock Replenishment: Automated alerts when inventory drops below 20 units.
+
+Audits: Monthly manual checks + quarterly third-party audits.
+
+5.2 Order Processing SLA
+Standard Orders: Shipped within 24 hours on business days.
+
+Custom Orders: Allow 3–5 business days for assembly.

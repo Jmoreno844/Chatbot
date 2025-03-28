@@ -16,9 +16,19 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentBotMessageId = useRef<string | null>(null);
+  const messageProcessed = useRef<boolean>(false);
 
   const handleMessage = useCallback((data) => {
     console.log("WebSocket message received:", data);
+
+    // If we've already processed a complete message, ignore any additional messages
+    // until a new user message is sent
+    if (messageProcessed.current && !currentBotMessageId.current) {
+      console.log(
+        "Ignoring duplicate message as we already completed processing"
+      );
+      return;
+    }
 
     // Server sends messages with chunk and done fields
     if (data.chunk !== undefined) {
@@ -26,6 +36,7 @@ export default function ChatPage() {
       if (!currentBotMessageId.current) {
         const newMessageId = Date.now().toString();
         currentBotMessageId.current = newMessageId;
+        messageProcessed.current = false;
 
         // Create initial message with first chunk
         const botMessage: Message = {
@@ -57,12 +68,13 @@ export default function ChatPage() {
       // If this is the final chunk (done is true)
       if (data.done === true) {
         console.log("Message stream complete");
+        messageProcessed.current = true;
         currentBotMessageId.current = null;
         setIsLoading(false);
       }
     }
-    // Fallback for other message formats
-    else if (data.message) {
+    // Fallback for other message formats - only process if we haven't handled a streaming message
+    else if (data.message && !messageProcessed.current) {
       const newMessageId = Date.now().toString();
       const botMessage: Message = {
         id: newMessageId,
@@ -73,6 +85,7 @@ export default function ChatPage() {
       };
 
       setMessages((prev) => [...prev, botMessage]);
+      messageProcessed.current = true;
       setIsLoading(false);
     }
   }, []);
@@ -92,7 +105,7 @@ export default function ChatPage() {
         : "ws:";
     return (
       process.env.NEXT_PUBLIC_WEBSOCKET_URL ||
-      `${wsProtocol}//localhost:8000/api/ws/chat`
+      `${wsProtocol}//localhost:8000/api/ws/rag-chat`
     );
   }, []);
 
@@ -101,7 +114,6 @@ export default function ChatPage() {
       url: wsBaseUrl,
       reconnectInterval: 2000,
       reconnectAttempts: 3,
-      maxReconnectAttempts: 5,
       onMessage: handleMessage,
       onOpen: handleOpen,
       onClose: handleClose,
@@ -116,8 +128,19 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Format conversation history for the backend
+  const formatHistoryForBackend = useCallback((messages: Message[]) => {
+    return messages.map((message) => ({
+      role: message.type === MessageType.USER ? "user" : "assistant",
+      content: message.content,
+    }));
+  }, []);
+
   const handleSendMessage = () => {
     if (!input.trim() || isLoading || socketStatus !== "connected") return;
+
+    // Reset message tracking when sending a new message
+    messageProcessed.current = false;
 
     // Add user message to chat
     const userMessage: Message = {
@@ -127,8 +150,19 @@ export default function ChatPage() {
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
-    sendMessage({ message: input });
+    // Update messages with the new user message
+    setMessages((prev) => {
+      const updatedMessages = [...prev, userMessage];
+
+      // Send message with conversation history
+      sendMessage({
+        message: input,
+        history: formatHistoryForBackend(updatedMessages.slice(0, -1)), // Send previous messages as history
+      });
+
+      return updatedMessages;
+    });
+
     setInput("");
     setIsLoading(true);
     // Reset current bot message ID when sending a new message

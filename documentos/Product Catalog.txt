@@ -1,0 +1,12 @@
+TechNova Solutions – Product Line (Q2 2024 Update)
+
+3.1 Hardware Products
+Product ID	Name	Description	Price	Warranty
+TN-HW101	NovaPro Keyboard	Ergonomic mechanical keyboard (RGB lighting)	$129.99	2 years
+TN-HW205	SwiftClick Mouse	Wireless, 8000 DPI, 30-day battery	$49.99	1 year
+TN-HW307	ThunderDrive SSD	1TB NVMe SSD (Read: 3500MB/s)	$89.99	3 years
+3.2 Software Subscriptions
+Plan	Features	Monthly Price	Annual Price (20% off)
+Basic	10GB storage, email support	$9.99	$95.99
+Pro	100GB storage, 24/7 support, API access	$29.99	$287.99
+Enterprise	Custom SLAs, dedicated account manager	Custom	Contact sales

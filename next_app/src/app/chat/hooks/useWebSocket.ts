@@ -5,7 +5,6 @@ import {
   WebSocketHookOptions,
   WebSocketHookResult,
 } from "@/types/chat";
-import axiosInstance from "@/utils/axiosInstance";
 
 export const useWebSocket = ({
   url,
@@ -13,7 +12,8 @@ export const useWebSocket = ({
   onOpen,
   onClose,
   onError,
-  maxTokenAttempts = 3,
+  reconnectInterval = 2000,
+  reconnectAttempts = 3,
 }: WebSocketHookOptions): WebSocketHookResult => {
   const [socketStatus, setSocketStatus] =
     useState<WebSocketStatus>("disconnected");
@@ -21,10 +21,9 @@ export const useWebSocket = ({
   const [error, setError] = useState<string | null>(null);
 
   const socket = useRef<WebSocket | null>(null);
-  const authToken = useRef<string | null>(null);
-  const tokenAttemptCount = useRef<number>(0);
   const isMounted = useRef<boolean>(true);
-  const isConnecting = useRef<boolean>(false); // New ref to track connection state
+  const isConnecting = useRef<boolean>(false);
+  const reconnectCount = useRef<number>(0);
 
   const clearExistingSocket = useCallback(() => {
     if (socket.current) {
@@ -33,52 +32,14 @@ export const useWebSocket = ({
     }
   }, []);
 
-  const fetchToken = useCallback(async (): Promise<string | null> => {
-    if (!isMounted.current) return null;
-    if (tokenAttemptCount.current >= maxTokenAttempts) {
-      setError(`Maximum token fetch attempts (${maxTokenAttempts}) reached`);
-      return null;
-    }
-    try {
-      tokenAttemptCount.current += 1;
-      console.log(
-        `Fetching auth token (attempt ${tokenAttemptCount.current}/${maxTokenAttempts})...`
-      );
-      const response = await axiosInstance.post("/api/token");
-      tokenAttemptCount.current = 0;
-      return response.data.access_token;
-    } catch (err) {
-      setError(
-        `Authentication failed (attempt ${
-          tokenAttemptCount.current
-        }/${maxTokenAttempts}): ${
-          err instanceof Error ? err.message : String(err)
-        }`
-      );
-      return null;
-    }
-  }, [maxTokenAttempts]);
-
   const connect = useCallback(async () => {
     if (!isMounted.current || isConnecting.current) return;
-    isConnecting.current = true; // Mark connection attempt started
+    isConnecting.current = true;
     clearExistingSocket();
 
     setSocketStatus("connecting");
-    if (!authToken.current) {
-      authToken.current = await fetchToken();
-      if (!authToken.current) {
-        setSocketStatus("disconnected");
-        isConnecting.current = false;
-        return;
-      }
-    }
-
-    const wsUrlWithToken = `${url}${url.includes("?") ? "&" : "?"}token=${
-      authToken.current
-    }`;
-    console.log(`Connecting to WebSocket: ${wsUrlWithToken}`);
-    const ws = new WebSocket(wsUrlWithToken);
+    console.log(`Connecting to WebSocket: ${url}`);
+    const ws = new WebSocket(url);
 
     ws.onopen = () => {
       if (!isMounted.current) {
@@ -89,6 +50,7 @@ export const useWebSocket = ({
       setSocketStatus("connected");
       setError(null);
       isConnecting.current = false;
+      reconnectCount.current = 0;
       if (onOpen) onOpen();
     };
 
@@ -113,6 +75,18 @@ export const useWebSocket = ({
       );
       setSocketStatus("disconnected");
       isConnecting.current = false;
+
+      // Auto-reconnect if we haven't exceeded attempts
+      if (reconnectCount.current < reconnectAttempts && isMounted.current) {
+        console.log(
+          `Attempting to reconnect (${
+            reconnectCount.current + 1
+          }/${reconnectAttempts})...`
+        );
+        reconnectCount.current += 1;
+        setTimeout(connect, reconnectInterval);
+      }
+
       if (onClose) onClose(event);
     };
 
@@ -130,8 +104,9 @@ export const useWebSocket = ({
     onOpen,
     onClose,
     onError,
-    fetchToken,
     clearExistingSocket,
+    reconnectInterval,
+    reconnectAttempts,
   ]);
 
   const sendMessage = useCallback((data: WebSocketMessage) => {

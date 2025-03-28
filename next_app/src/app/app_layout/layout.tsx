@@ -55,11 +55,9 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({ children, metadata }) => {
   }
 
   return (
-    <AuthProvider>
-      <SidebarProvider>
-        <LayoutContent>{children}</LayoutContent>
-      </SidebarProvider>
-    </AuthProvider>
+    <SidebarProvider>
+      <LayoutContent>{children}</LayoutContent>
+    </SidebarProvider>
   );
 };
 

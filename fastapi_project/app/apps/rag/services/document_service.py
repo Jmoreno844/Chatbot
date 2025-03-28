@@ -1,6 +1,7 @@
 # app/apps/rag/services/document_service.py
 from google.cloud import storage
 import uuid
+import json
 from typing import Dict, List, Any, BinaryIO, Tuple
 import os
 from datetime import datetime
@@ -24,9 +25,22 @@ class DocumentService:
         # 1. Store original document in GCS
         file_ext = os.path.splitext(filename)[1].lower()
         gcs_path = f"documents/raw/{doc_id}{file_ext}"
+
+        # Create metadata dictionary
+        metadata = {
+            "original_filename": filename,
+            "upload_time": timestamp,
+            "content_type": self._get_content_type(file_ext),
+        }
+
+        # Get blob and set metadata BEFORE uploading
         blob = self.bucket.blob(gcs_path)
+        blob.metadata = metadata  # Set metadata as an attribute
+
+        # Upload the content (without metadata parameter)
         blob.upload_from_string(
-            file_content, content_type=self._get_content_type(file_ext)
+            file_content,
+            content_type=self._get_content_type(file_ext),
         )
 
         # 2. Process the document
@@ -42,10 +56,13 @@ class DocumentService:
                         "doc_id": doc_id,
                         "original_filename": filename,
                         "gcs_path": gcs_path,
-                        "timestamp": timestamp,
+                        "upload_time": timestamp,
                         "chunk_index": i,
                     }
                 )
+
+            # 4. Update document registry
+            self._update_document_registry(doc_id, filename, gcs_path, metadata)
 
             return {
                 "doc_id": doc_id,
@@ -60,6 +77,36 @@ class DocumentService:
             # Delete uploaded file if processing fails
             blob.delete()
             raise e
+
+    def _update_document_registry(
+        self, doc_id: str, filename: str, gcs_path: str, metadata: Dict[str, Any]
+    ) -> None:
+        """Update the document registry with new document information"""
+        registry_blob = self.bucket.blob("documents/registry.json")
+
+        # Get existing registry or create new one
+        if registry_blob.exists():
+            registry_content = registry_blob.download_as_string()
+            registry = json.loads(registry_content.decode("utf-8"))
+        else:
+            registry = {"documents": []}
+
+        # Add new document to registry
+        registry["documents"].append(
+            {
+                "doc_id": doc_id,
+                "filename": filename,
+                "gcs_path": gcs_path,
+                "upload_time": metadata["upload_time"],
+                "file_type": os.path.splitext(filename)[1][1:],
+            }
+        )
+
+        # Save updated registry (without metadata parameter)
+        registry_blob.upload_from_string(
+            json.dumps(registry, indent=2),
+            content_type="application/json",
+        )
 
     def _get_content_type(self, file_ext: str) -> str:
         """Get the appropriate content type for a file extension"""

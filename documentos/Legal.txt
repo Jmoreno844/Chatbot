@@ -1,0 +1,11 @@
+6.1 Terms of Service (Summary)
+Liability: TechNova’s liability is capped at the purchase amount.
+
+Disputes: Resolved via arbitration in Delaware, USA.
+
+6.2 Privacy Policy Highlights
+Data Collected: Name, email, payment info, IP address, browsing behavior.
+
+Third Parties: Data shared only with payment processors (Stripe, PayPal).
+
+

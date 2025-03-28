@@ -1,6 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, UploadFile, File
-from typing import List
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    BackgroundTasks,
+    UploadFile,
+    File,
+    WebSocket,
+    WebSocketDisconnect,
+)
+from typing import List, Dict, Any
 import os
+import json
+import logging
+from starlette.websockets import WebSocketState
 
 from app.apps.rag.schemas import (
     TextData,
@@ -12,6 +24,7 @@ from app.apps.rag.schemas import (
 from app.apps.rag.services.embedding_service import EmbeddingService
 from app.apps.rag.utils.vector_store import CloudVectorStore
 from app.apps.rag.services.document_service import DocumentService
+from app.apps.chat.services.rag_chat_service import get_rag_streaming_response
 
 router = APIRouter(tags=["embeddings"])
 
@@ -123,3 +136,96 @@ async def upload_document(file: UploadFile = File(...)):
         raise HTTPException(
             status_code=500, detail=f"Error processing document: {str(e)}"
         )
+
+
+@router.get("/documents", response_model=List[Dict[str, Any]])
+async def list_documents():
+    """List all uploaded documents"""
+    try:
+        registry_blob = document_service.bucket.blob("documents/registry.json")
+
+        if not registry_blob.exists():
+            return []
+
+        registry_content = registry_blob.download_as_string()
+        registry = json.loads(registry_content.decode("utf-8"))
+
+        return registry["documents"]
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error retrieving document list: {str(e)}"
+        )
+
+
+@router.get("/documents/{doc_id}")
+async def get_document(doc_id: str):
+    """Get information about a specific document"""
+    try:
+        # First check registry
+        registry_blob = document_service.bucket.blob("documents/registry.json")
+        registry_content = registry_blob.download_as_string()
+        registry = json.loads(registry_content.decode("utf-8"))
+
+        # Find the document in registry
+        doc_info = next(
+            (doc for doc in registry["documents"] if doc["doc_id"] == doc_id), None
+        )
+
+        if not doc_info:
+            raise HTTPException(status_code=404, detail="Document not found")
+
+        return doc_info
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error retrieving document: {str(e)}"
+        )
+
+
+@router.websocket("/ws/rag-chat")
+async def websocket_rag_chat_endpoint(websocket: WebSocket):
+    """WebSocket endpoint for RAG-enhanced customer support chat"""
+    logger = logging.getLogger(__name__)
+    logger.info("RAG chat WebSocket connection attempt")
+
+    try:
+        # Accept the connection
+        await websocket.accept()
+        logger.info("RAG chat WebSocket connection accepted")
+
+        # Get services from app state
+        chat_service = websocket.app.state.chat_service
+        embedding_service = websocket.app.state.embedding_service
+        vector_store = websocket.app.state.vector_store
+
+        while True:
+            data = await websocket.receive_json()
+            message = data.get("message")
+            history = data.get("history", [])
+
+            if not isinstance(message, str):
+                await websocket.send_json(
+                    {"error": "Invalid message format", "code": "invalid_format"}
+                )
+                continue
+
+            try:
+                # Use the RAG chat service to generate responses
+                async for chunk in get_rag_streaming_response(
+                    query=message,
+                    embedding_service=embedding_service,
+                    vector_store=vector_store,
+                    chat_service=chat_service,
+                    history=history,
+                ):
+                    await websocket.send_json({"chunk": chunk, "done": False})
+                await websocket.send_json({"chunk": "", "done": True})
+            except Exception as e:
+                logger.error(f"RAG streaming error: {str(e)}")
+                await websocket.send_json({"error": str(e), "code": "stream_error"})
+
+    except WebSocketDisconnect:
+        logger.info("RAG chat WebSocket disconnected")
+    except Exception as e:
+        logger.error(f"RAG chat WebSocket error: {str(e)}")
+        if websocket.client_state != WebSocketState.DISCONNECTED:
+            await websocket.close()
