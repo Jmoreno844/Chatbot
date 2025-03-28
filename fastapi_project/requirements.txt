@@ -1,0 +1,27 @@
+fastapi
+uvicorn
+pydantic
+sqlalchemy
+psycopg2-binary 
+python-jose 
+passlib 
+python-multipart 
+python-dotenv
+pydantic-settings
+
+itsdangerous
+email-validator
+alembic
+google-generativeai
+
+asyncpg
+
+### For ML and NLP
+sentence-transformers
+numpy
+google-cloud-storage
+python-dotenv
+
+python-docx
+PyPDF2
+langchain
