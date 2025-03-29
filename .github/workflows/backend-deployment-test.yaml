@@ -131,7 +131,6 @@ jobs:
             GOOGLE_LOCATION=${{ env.REGION }}
             HF_TOKEN=${{ secrets.HF_TOKEN }}
             DEBUG=false
-            DEPLOYED_URL=${{ steps.deploy.outputs.url }}
             BACKEND_CORS_ORIGINS=http://34.102.180.65:80
           project_id: ${{ env.GCP_PROJECT_ID }}
 
