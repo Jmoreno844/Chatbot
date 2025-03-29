@@ -13,7 +13,9 @@ vertexai
 google-genai
 
 ### For ML and NLP
-torch==2.6.0 --extra-index-url https://download.pytorch.org/whl/cpu
+--index-url https://download.pytorch.org/whl/cpu
+--extra-index-url https://pypi.org/simple
+torch
 sentence-transformers
 numpy
 google-cloud-storage
