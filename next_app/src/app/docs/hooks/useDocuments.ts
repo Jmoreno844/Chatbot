@@ -17,7 +17,7 @@ export const useDocuments = () => {
   const fetchDocuments = async () => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get("/api/documents/");
+      const response = await axiosInstance.get("/api/documents");
       setDocuments(response.data);
       setError(null);
     } catch (err) {

@@ -67,7 +67,15 @@ export default function ChatPage() {
       }
 
       if (data.done === true) {
-        console.log("Message stream complete");
+        console.log("Message stream complete, setting isStreaming to false");
+        // Explicitly update the message again to ensure isStreaming is false
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === currentBotMessageId.current
+              ? { ...msg, isStreaming: false }
+              : msg
+          )
+        );
         messageProcessed.current = true;
         currentBotMessageId.current = null;
         setIsLoading(false);
@@ -97,14 +105,25 @@ export default function ChatPage() {
   }, []);
 
   const wsBaseUrl = useMemo(() => {
-    const wsProtocol =
-      typeof window !== "undefined" && window.location.protocol === "https:"
-        ? "wss:"
-        : "ws:";
-    return (
-      process.env.NEXT_PUBLIC_WEBSOCKET_URL ||
-      `${wsProtocol}//localhost:8000/api/ws/rag-chat`
-    );
+    // Determine if we're using secure connection
+    const isSecure =
+      typeof window !== "undefined" && window.location.protocol === "https:";
+    const wsProtocol = isSecure ? "wss:" : "ws:";
+
+    // Get the API URL from environment variable or fallback to localhost
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+    // Create WebSocket URL by replacing http/https with ws/wss
+    let wsUrl = apiUrl.replace(/^https?:/, wsProtocol);
+
+    // Ensure the URL ends with /api/ws/rag-chat
+    if (!wsUrl.endsWith("/api/ws/rag-chat")) {
+      wsUrl = wsUrl.endsWith("/")
+        ? `${wsUrl}api/ws/rag-chat`
+        : `${wsUrl}/api/ws/rag-chat`;
+    }
+
+    return wsUrl;
   }, []);
 
   const { socketStatus, sendMessage, lastMessage, error, reconnect } =
@@ -194,6 +213,18 @@ export default function ChatPage() {
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
+  }, [isLoading]);
+
+  // Add this new useEffect to ensure streaming state gets updated properly
+  useEffect(() => {
+    //  When loading state changes to false, make sure no messages are still marked as streaming
+    if (!isLoading && currentBotMessageId.current === null) {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.isStreaming ? { ...msg, isStreaming: false } : msg
+        )
+      );
+    }
   }, [isLoading]);
 
   if (error) {

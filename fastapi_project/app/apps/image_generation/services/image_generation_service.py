@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class ImageGenerationService:
-    """Service for handling Vertex AI image generation capabilities."""
+    """Service for handling Vertex AI image generation capabilities.."""
 
     def __init__(self):
         """Initialize Vertex AI with project and location."""
