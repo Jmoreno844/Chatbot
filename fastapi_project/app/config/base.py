@@ -9,7 +9,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     APP_ENV: str = "development"
-    API_PREFIX: str = "/api/v1"
+    API_PREFIX: str = "/api"
     DEBUG: bool = False
     TITLE: str = "FastAPI Project"
 
@@ -18,9 +18,18 @@ class Settings(BaseSettings):
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
-        if isinstance(v, str) and not v.startswith("["):
+        if isinstance(v, str):
+            if v.startswith("[") and v.endswith("]"):
+                # Handle JSON formatted string
+                import json
+
+                try:
+                    return json.loads(v)
+                except json.JSONDecodeError:
+                    pass  # Fall back to other methods if JSON parsing fails
+            # Handle comma-separated values
             return [i.strip() for i in v.split(",")]
-        elif isinstance(v, (list, str)):
+        elif isinstance(v, list):
             return v
         raise ValueError(v)
 
@@ -29,7 +38,7 @@ class Settings(BaseSettings):
     gemini_model: str = "gemini-2.0-flash-exp"
 
     # Storage
-    GCS_PROJECT_ID: str
+    GCP_PROJECT_ID: str
     GOOGLE_LOCATION: str = "us-east1"
     GCS_BUCKET_NAME: str
 

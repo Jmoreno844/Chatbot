@@ -43,9 +43,9 @@ async def lifespan(app: FastAPI):
 
     # Get environment variables for Google Cloud Storage
     BUCKET_NAME = os.getenv("GCS_BUCKET_NAME", settings.GCS_BUCKET_NAME)
-    GCS_PROJECT_ID = os.getenv("GCS_PROJECT_ID", settings.GCS_PROJECT_ID)
+    GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID", settings.GCP_PROJECT_ID)
 
-    logger.info(f"Initializing with GCS_PROJECT_ID: {GCS_PROJECT_ID}")
+    logger.info(f"Initializing with GCP_PROJECT_ID: {GCP_PROJECT_ID}")
     logger.info(f"Using bucket: {BUCKET_NAME}")
 
     # Initialize Gemini service
@@ -59,7 +59,7 @@ async def lifespan(app: FastAPI):
     )  # Initialize RAG services
     app.state.embedding_service = EmbeddingService()
     app.state.vector_store = CloudVectorStore(
-        bucket_name=BUCKET_NAME, project_id=GCS_PROJECT_ID
+        bucket_name=BUCKET_NAME, project_id=GCP_PROJECT_ID
     )
 
     # Load embeddings from cloud storage
@@ -85,13 +85,36 @@ app = FastAPI(
 
 # Add CORS middleware
 if settings.BACKEND_CORS_ORIGINS:
+    print(f"CORS origins from settings: {settings.BACKEND_CORS_ORIGINS}")
+
+    # Create a more comprehensive list of allowed origins
+    allowed_origins = []
+    for origin in settings.BACKEND_CORS_ORIGINS:
+        origin_str = str(origin)
+        allowed_origins.append(origin_str)
+
+        # Add version without trailing slash if it has one
+        if origin_str.endswith("/"):
+            allowed_origins.append(origin_str.rstrip("/"))
+        # Add version with trailing slash if it doesn't have one
+        else:
+            allowed_origins.append(f"{origin_str}/")
+
+        # Add version with explicit port 80 if it doesn't have a port
+        if ":" not in origin_str:
+            allowed_origins.append(f"{origin_str}:80")
+
+    print(f"Expanded CORS origins: {allowed_origins}")
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+        allow_origins=allowed_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
+else:
+    print("WARNING: No CORS origins configured")
 
 
 # Global exception handler

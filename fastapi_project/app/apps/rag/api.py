@@ -31,12 +31,12 @@ router = APIRouter(tags=["embeddings"])
 
 # Get environment variables for Google Cloud Storage
 BUCKET_NAME = os.getenv("GCS_BUCKET_NAME", "your-gcs-bucket-name")
-GCS_PROJECT_ID = os.getenv("GCS_PROJECT_ID", "your-gcs-project-id")
+GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID", "your-gcs-project-id")
 
 # Initialize services with GCS configuration
 embedding_service = EmbeddingService()
-vector_store = CloudVectorStore(bucket_name=BUCKET_NAME, project_id=GCS_PROJECT_ID)
-document_service = DocumentService(bucket_name=BUCKET_NAME, project_id=GCS_PROJECT_ID)
+vector_store = CloudVectorStore(bucket_name=BUCKET_NAME, project_id=GCP_PROJECT_ID)
+document_service = DocumentService(bucket_name=BUCKET_NAME, project_id=GCP_PROJECT_ID)
 
 
 # Load embeddings on startup

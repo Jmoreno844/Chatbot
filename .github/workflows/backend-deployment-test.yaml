@@ -41,8 +41,14 @@ jobs:
           # Only fetch what's needed for faster checkout
           fetch-depth: 1
 
-      - name: Clear Docker Cache
-        run: docker buildx prune --force
+      # Add Docker layer caching
+      - name: Set up Docker layer caching
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -75,6 +81,8 @@ jobs:
           images: ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}
           tags: |
             type=sha,format=short
+            type=ref,event=branch
+            type=sha
 
       - name: Build and push
         uses: docker/build-push-action@v4
@@ -84,8 +92,14 @@ jobs:
           tags: ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
           # Enhanced caching options
-          cache-from: type=gha,scope=${{ github.workflow }}
-          cache-to: type=gha,scope=${{ github.workflow }},mode=max
+          cache-from: |
+            type=local,src=/tmp/.buildx-cache
+            type=gha,scope=${{ github.workflow }}
+            type=registry,ref=${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:buildcache
+          cache-to: |
+            type=local,dest=/tmp/.buildx-cache-new,mode=max
+            type=gha,scope=${{ github.workflow }},mode=max
+            type=registry,ref=${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:buildcache,mode=max
           # Optimize build with buildx flags
           build-args: |
             BUILDKIT_INLINE_CACHE=1
@@ -93,6 +107,17 @@ jobs:
           platforms: linux/amd64
           # Use parallel processing where possible
           provenance: false
+          # Enhance build performance
+          no-cache-filters: |
+            node_modules
+          outputs: |
+            type=docker,dest=/tmp/docker-image.tar
+
+      # Move cache to avoid growing cache
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   deploy:
     name: Deploy to Cloud Run
@@ -131,7 +156,7 @@ jobs:
             GOOGLE_LOCATION=${{ env.REGION }}
             HF_TOKEN=${{ secrets.HF_TOKEN }}
             DEBUG=false
-            BACKEND_CORS_ORIGINS=http://34.102.180.65:80
+            BACKEND_CORS_ORIGINS=["http://34.102.180.65:80"]
           project_id: ${{ env.GCP_PROJECT_ID }}
 
       # Display the deployment URL

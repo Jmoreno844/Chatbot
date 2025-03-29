@@ -19,7 +19,7 @@ class ImageGenerationService:
     def __init__(self):
         """Initialize Vertex AI with project and location."""
         settings = get_settings()
-        self.project_id = settings.GCS_PROJECT_ID
+        self.project_id = settings.GCP_PROJECT_ID
         self.location = settings.GOOGLE_LOCATION
 
         logger.info(

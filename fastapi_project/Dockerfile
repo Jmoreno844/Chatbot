@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements file
+# Copy only requirements first (for better caching)
 COPY requirements.txt .
 
 # Create a virtual environment and install dependencies
@@ -29,21 +29,26 @@ WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy application code
+# Copy application code by order of change frequency
+# First copy configuration files that change less frequently
+COPY ./app/config ./app/config/
+
+# Then copy the rest of the application code
 COPY . .
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    APP_ENV=cloud \
-    DEBUG=false
+    APP_ENV=test \
+    DEBUG=false \
+    PORT=8080
 
 # Change ownership to non-root user
 RUN chown -R appuser:appuser /app
 USER appuser
 
-# Expose port
-EXPOSE 8000
+# Expose port (for documentation)
+EXPOSE 8080
 
-# Run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the application using the PORT environment variable
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}
