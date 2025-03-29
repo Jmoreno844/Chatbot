@@ -3,15 +3,15 @@ name: Backend Test and Deployment
 on:
   push:
     branches:
-      - develop
+      - main
     paths:
-      - "django_ninja_project/**"
+      - "fastapi_project/**"
       - ".github/workflows/backend-deployment-test.yaml"
   pull_request:
     branches:
       - develop
     paths:
-      - "django_ninja_project/**"
+      - "fastapi_project/**"
   workflow_dispatch:
 
 # Add concurrency to cancel redundant builds
@@ -21,108 +21,18 @@ concurrency:
 
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  SERVICE_NAME: medwebapp-backend-container-test
+  SERVICE_NAME: chatbot-backend-test
   REGION: us-east1
-  REPOSITORY: medaiwebapp-test-containers
+  REPOSITORY: chatbot-test-containers
 
 jobs:
-  # test:
-  #   name: Test Backend
-  #   runs-on: ubuntu-latest
-
-  #   env:
-  #     DJANGO_SETTINGS_MODULE: config.settings.test
-  #     GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
-  #     # Keep environment variables for Cloud SQL connection
-  #     DB_NAME: ${{ secrets.TEST_DB_NAME }}
-  #     DB_USER: ${{ secrets.TEST_DB_USER }}
-  #     DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
-  #     DB_HOST: ${{ secrets.TEST_DB_HOST }}
-  #     DB_PORT: ${{ secrets.DB_PORT || '5432' }}
-
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
-
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: "3.10"
-  #         cache: "pip"
-
-  #     - name: Install Poetry
-  #       uses: snok/install-poetry@v1
-  #       with:
-  #         version: 1.7.1
-
-  #     - name: Cache Poetry dependencies
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: ~/.cache/pypoetry
-  #         key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-poetry-
-
-  #     - name: Install dependencies
-  #       run: |
-  #         cd django_ninja_project
-  #         poetry install --no-interaction
-
-  #     - name: Authenticate to Google Cloud
-  #       uses: google-github-actions/auth@v1
-  #       with:
-  #         credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-  #     # - name: Run tests
-  #     #   working-directory: django_ninja_project
-  #     #   run: |
-  #     #     poetry run python manage.py test
-
-  # lint:
-  #   name: Lint Backend
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
-
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: "3.10"
-
-  #     - name: Install Poetry
-  #       uses: snok/install-poetry@v1
-  #       with:
-  #         version: 1.7.1
-
-  #     - name: Install dependencies
-  #       run: |
-  #         cd django_ninja_project
-  #         poetry install --no-interactionn
-
-  #     # - name: Run black
-  #     #   working-directory: django_ninja_project
-  #     #   run: |
-  #     #     poetry run black --check .
-
-  #     - name: Run isort
-  #       working-directory: django_ninja_project
-  #       run: |
-  #         poetry run isort --check-only --profile black .
-
-  #     - name: Run flake8
-  #       working-directory: django_ninja_project
-  #       run: |
-  #         poetry run flake8
-
   build-and-push:
     name: Build and Push Docker Image
     # needs: [test, lint]
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     env:
-      DJANGO_SETTINGS_MODULE: config.settings.test
+      APP_ENV: test
 
     steps:
       - name: Checkout code
@@ -166,7 +76,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
-          context: ./django_ninja_project
+          context: ./fastapi_project
           push: true
           tags: ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -176,12 +86,10 @@ jobs:
           # Optimize build with buildx flags
           build-args: |
             BUILDKIT_INLINE_CACHE=1
-            DJANGO_SETTINGS_MODULE=${{ env.DJANGO_SETTINGS_MODULE }}
+            APP_ENV=${{ env.APP_ENV }}
           platforms: linux/amd64
           # Use parallel processing where possible
           provenance: false
-          push-args: |
-            --compress
 
   deploy:
     name: Deploy to Cloud Run
@@ -206,7 +114,6 @@ jobs:
           flags: |
             --ingress=all
             --allow-unauthenticated
-            --vpc-connector=${{ vars.test_vpc_connector_name}}
             --session-affinity
             --service-account=${{ vars.BACKEND_SERVICE_ACCOUNT }}           
             --cpu=1
@@ -214,10 +121,15 @@ jobs:
             --min-instances=1
             --max-instances=3
           env_vars: |
-            DJANGO_SETTINGS_MODULE=config.settings.test
-            GCP_PROJECT_ID=${{ env.GCP_PROJECT_ID }}
-            ENVIRONMENT=test
-            ENABLE_SILK=true
+            APP_ENV=test
+            GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}
+            GCS_BUCKET_NAME=${{ secrets.GCS_BUCKET_NAME }}
+            GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+            GOOGLE_LOCATION=${{ env.REGION }}
+            HF_TOKEN=${{ secrets.HF_TOKEN }}
+            DEBUG=false
+            DEPLOYED_URL=${{ steps.deploy.outputs.url }}
+            BACKEND_CORS_ORIGINS=http://34.102.180.65:80
           project_id: ${{ env.GCP_PROJECT_ID }}
 
       # Display the deployment URL

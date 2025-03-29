@@ -1,9 +1,3 @@
+docker run -v ~/.config/gcloud:/home/appuser/.config/gcloud --env-file .env chatbot-backend
 
 
-
-### Alembic
-
-# Create an initial migration
-alembic revision --autogenerate -m "create users table"
-# Apply the migration
-alembic upgrade head
