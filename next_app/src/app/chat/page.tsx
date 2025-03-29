@@ -16,7 +16,7 @@ interface WebSocketResponseData {
   done?: boolean;
   message?: string;
 }
-
+//
 export default function ChatPage() {
   const [input, setInput] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
