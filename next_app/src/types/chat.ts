@@ -9,6 +9,7 @@ export interface Message {
   content: string;
   type: MessageType;
   timestamp: Date;
+  isStreaming?: boolean;
 }
 
 export type WebSocketStatus = "connecting" | "connected" | "disconnected";
@@ -33,4 +34,5 @@ export interface WebSocketHookResult {
   sendMessage: (data: WebSocketMessage) => void;
   lastMessage: any;
   error: string | null;
+  reconnect: () => void;
 }

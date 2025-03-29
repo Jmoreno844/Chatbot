@@ -93,7 +93,7 @@ export const useWebSocket = ({
         setTimeout(connect, reconnectInterval);
       }
 
-      if (onClose) onClose(event);
+      if (onClose) onClose();
     };
 
     ws.onerror = (event) => {

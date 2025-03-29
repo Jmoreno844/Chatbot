@@ -1,16 +1,8 @@
 "use client";
 import React from "react";
-import { Metadata } from "next";
-import { AuthProvider } from "@/contexts/AuthContext";
 import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
-interface BaseLayoutProps {
-  children: React.ReactNode;
-  metadata?: Metadata;
-}
 
 /**
  * LayoutContent component renders the main layout including sidebar and main content area.
@@ -45,23 +37,12 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({
 };
 
 /**
- * BaseLayout component wraps the application with necessary providers and applies global metadata.
- *
- * @param {BaseLayoutProps} props - The component props.
- * @returns {JSX.Element} The base layout wrapping component.
+ * Layout component for the app section
  */
-const BaseLayout: React.FC<BaseLayoutProps> = ({ children, metadata }) => {
-  if (metadata) {
-    // Attach metadata to the global object for potential dynamic usage
-    // @ts-expect-error
-    globalThis.metadata = metadata;
-  }
-
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <LayoutContent>{children}</LayoutContent>
     </SidebarProvider>
   );
-};
-
-export default BaseLayout;
+}

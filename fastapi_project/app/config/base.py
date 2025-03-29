@@ -38,13 +38,26 @@ class Settings(BaseSettings):
     default_voice: str = "Kore"  # Options: Aoede, Charon, Fenrir, Kore, Puck
     max_session_minutes: int = 14  # Set to 14 to be safe (limit is 15)
 
+    # Google Cloud specific settings
+    GOOGLE_APPLICATION_CREDENTIALS: Optional[str] = None
+    GCP_SERVICE_ACCOUNT: Optional[str] = None
+
+    # Additional deployment settings
+    DEPLOYED_URL: Optional[str] = None
+    INSTANCE_CONNECTION_NAME: Optional[str] = None
+
     class Config:
         case_sensitive = True
         env_file = ".env"
         env_file_encoding = "utf-8"
+        # Look for environment variables first
+        env_prefix = ""
+        extra = "ignore"
 
 
 @lru_cache()
 def get_settings() -> Settings:
     """Get cached settings."""
+    app_env = os.getenv("APP_ENV", "development")
+    print(f"Loading settings for environment: {app_env}")
     return Settings()

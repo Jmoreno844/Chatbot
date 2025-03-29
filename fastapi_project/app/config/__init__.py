@@ -4,12 +4,13 @@ from typing import Dict, Type
 
 from app.config.base import Settings
 from app.config.develop import DevelopSettings
-from app.config.test import TestSettings
+from app.config.test import DeploySettings  # Updated import
 
 # Map environment names to settings classes
 environment_settings: Dict[str, Type[Settings]] = {
     "development": DevelopSettings,
-    "test": TestSettings,
+    "test": DeploySettings,  # For backward compatibility
+    "cloud": DeploySettings,  # Add cloud environment
     "production": Settings,  # Use base settings for production
 }
 

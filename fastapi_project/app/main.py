@@ -37,13 +37,16 @@ async def lifespan(app: FastAPI):
     Preferred over @app.on_event decorators
     """
     # Startup logic
-    print(f"Starting application in {getattr(settings, 'APP_ENV', 'unknown')} mode")
+    app_env = getattr(settings, "APP_ENV", "unknown")
+    print(f"Starting application in {app_env} mode")
+    logger.info(f"Application environment: {app_env}")
 
     # Get environment variables for Google Cloud Storage
-    BUCKET_NAME = os.getenv("GCS_BUCKET_NAME", "your-gcs-bucket-name")
-    GCS_PROJECT_ID = os.getenv("GCS_PROJECT_ID", "your-gcs-project-id")
+    BUCKET_NAME = os.getenv("GCS_BUCKET_NAME", settings.GCS_BUCKET_NAME)
+    GCS_PROJECT_ID = os.getenv("GCS_PROJECT_ID", settings.GCS_PROJECT_ID)
 
     logger.info(f"Initializing with GCS_PROJECT_ID: {GCS_PROJECT_ID}")
+    logger.info(f"Using bucket: {BUCKET_NAME}")
 
     # Initialize Gemini service
     gemini_api_key = settings.GEMINI_API_KEY
@@ -124,4 +127,7 @@ async def health_check():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # For local development only
+    # In production, Gunicorn or Cloud Run will handle this
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run(app, host="0.0.0.0", port=port)

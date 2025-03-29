@@ -57,7 +57,7 @@ def format_context(search_results: List[Dict[str, Any]]) -> str:
 
 def create_rag_prompt(query: str, context: str) -> str:
     """Create a RAG-enhanced prompt for customer support."""
-    return f"""You are a helpful customer support representative named Alex working for our company. 
+    return f"""You are a helpful customer support representative named Alex working for our company TechNova Solutions. 
 Act naturally as if you are a real person having a conversation with the customer.
 
 CONTEXT INFORMATION:

@@ -52,6 +52,18 @@ export const useDocuments = () => {
     }
   };
 
+  const deleteDocument = async (docId: string) => {
+    try {
+      const response = await axiosInstance.delete(`/api/documents/${docId}`);
+      // Refresh the documents list after deletion
+      await fetchDocuments();
+      return response.data;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
+
   useEffect(() => {
     fetchDocuments();
   }, []);
@@ -62,5 +74,6 @@ export const useDocuments = () => {
     error,
     fetchDocuments,
     uploadDocument,
+    deleteDocument,
   };
 };

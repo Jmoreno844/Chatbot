@@ -3,6 +3,9 @@ from typing import List, Dict, Any, Optional
 import json
 import io
 from google.cloud import storage
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class CloudVectorStore:
@@ -118,3 +121,34 @@ class CloudVectorStore:
             {"document": self.documents[i], "score": float(similarities[i])}
             for i in top_indices
         ]
+
+    def delete_documents_by_id(self, doc_id: str) -> bool:
+        """Delete all documents with the specified doc_id from vector store"""
+        if not self.documents or len(self.documents) == 0:
+            logger.warning(f"No documents in vector store to delete for {doc_id}")
+            return False
+
+        # Find indices of documents with matching doc_id
+        indices_to_remove = []
+        for i, doc in enumerate(self.documents):
+            metadata = doc.get("metadata", {})
+            if metadata.get("doc_id") == doc_id:
+                indices_to_remove.append(i)
+
+        if not indices_to_remove:
+            logger.warning(f"No documents with doc_id {doc_id} found in vector store")
+            return False  # No matching documents found
+
+        # Create a mask of documents to keep
+        keep_mask = np.ones(len(self.documents), dtype=bool)
+        for idx in indices_to_remove:
+            keep_mask[idx] = False
+
+        # Update documents and embeddings
+        self.documents = [d for i, d in enumerate(self.documents) if keep_mask[i]]
+        self.embeddings = self.embeddings[keep_mask]
+
+        logger.info(f"Removed {len(indices_to_remove)} embeddings for doc_id {doc_id}")
+
+        # Sync to cloud storage
+        return self.save_to_cloud()

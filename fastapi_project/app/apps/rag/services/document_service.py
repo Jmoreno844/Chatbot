@@ -6,6 +6,9 @@ from typing import Dict, List, Any, BinaryIO, Tuple
 import os
 from datetime import datetime
 from ..utils.document_parser import DocumentParser
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class DocumentService:
@@ -77,6 +80,52 @@ class DocumentService:
             # Delete uploaded file if processing fails
             blob.delete()
             raise e
+
+    def delete_document(self, doc_id: str) -> bool:
+        """Delete a document from GCS by its ID and update the registry"""
+        try:
+            # Get the document info from registry
+            registry_blob = self.bucket.blob("documents/registry.json")
+
+            if not registry_blob.exists():
+                logger.warning(f"Registry not found while deleting document {doc_id}")
+                return False
+
+            registry_content = registry_blob.download_as_string()
+            registry = json.loads(registry_content.decode("utf-8"))
+
+            # Find the document in registry
+            doc_index = None
+            doc_info = None
+            for i, doc in enumerate(registry["documents"]):
+                if doc["doc_id"] == doc_id:
+                    doc_index = i
+                    doc_info = doc
+                    break
+
+            if doc_index is None:
+                logger.warning(f"Document {doc_id} not found in registry")
+                return False  # Document not found
+
+            # Delete the original file from GCS
+            gcs_path = doc_info["gcs_path"]
+            blob = self.bucket.blob(gcs_path)
+            if blob.exists():
+                blob.delete()
+                logger.info(f"Deleted document file: {gcs_path}")
+
+            # Update registry
+            registry["documents"].pop(doc_index)
+            registry_blob.upload_from_string(
+                json.dumps(registry, indent=2),
+                content_type="application/json",
+            )
+            logger.info(f"Document {doc_id} removed from registry")
+
+            return True
+        except Exception as e:
+            logger.error(f"Error deleting document {doc_id}: {e}")
+            return False
 
     def _update_document_registry(
         self, doc_id: str, filename: str, gcs_path: str, metadata: Dict[str, Any]

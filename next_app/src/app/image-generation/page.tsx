@@ -130,75 +130,72 @@ export default function ImageGenerationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fc] dark:bg-gray-900 py-6 px-4 transition-colors duration-300">
-      <div className="container mx-auto max-w-6xl">
-        {/* Header section with modern design */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500 inline-block">
+    <div className="flex flex-col h-full w-full bg-white">
+      <div className="flex-1 mx-auto max-w-6xl">
+        <header className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-3">
             Visual AI Studio
           </h1>
-          <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
-            Create stunning, professional visuals with AI — from concept to
-            reality in seconds
+          <p className="text-gray-600 text-base max-w-2xl mx-auto">
+            Create stunning visuals with AI – from concept to reality.
           </p>
-        </div>
+        </header>
 
-        {/* Navigation tabs */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex p-1 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm">
+        <nav className="flex justify-center mb-8">
+          <div className="inline-flex">
             <button
               onClick={() => setActiveTab("create")}
-              className={`px-5 py-2.5 rounded-md text-sm font-medium transition-all duration-200 flex items-center ${
+              className={`px-4 py-2 border border-gray-300 rounded-l-md text-sm font-medium transition-colors ${
                 activeTab === "create"
-                  ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
-                  : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                  ? "bg-gray-200 text-gray-800"
+                  : "bg-white text-gray-600"
               }`}
             >
-              <FiZap className="mr-2" /> Create
+              <FiZap className="inline mr-1" /> Create
             </button>
             <button
               onClick={() => setActiveTab("gallery")}
-              className={`px-5 py-2.5 rounded-md text-sm font-medium transition-all duration-200 flex items-center ${
+              className={`px-4 py-2 border-t border-b border-r border-gray-300 rounded-r-md text-sm font-medium transition-colors ${
                 activeTab === "gallery"
-                  ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
-                  : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                  ? "bg-gray-200 text-gray-800"
+                  : "bg-white text-gray-600"
               }`}
             >
-              <FiTrello className="mr-2" /> Gallery{" "}
+              <FiTrello className="inline mr-1" /> Gallery{" "}
               {imageHistory.length > 0 && `(${imageHistory.length})`}
             </button>
           </div>
-        </div>
+        </nav>
 
         {activeTab === "create" && (
           <div className="space-y-8">
             {/* Input Form with modern, professional design */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8 max-w-3xl mx-auto transform transition-all hover:shadow-md">
+            <div className="bg-white rounded-lg shadow p-6 max-w-3xl mx-auto">
               <div className="mb-6">
                 <div className="flex items-center mb-4">
-                  <span className="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 mr-3">
+                  <span className="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 mr-3">
                     <FiStar className="text-lg" />
                   </span>
-                  <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+                  <h2 className="text-xl font-semibold text-gray-800">
                     Design Canvas
                   </h2>
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-gray-500">
                   Describe what you want to create and our AI will generate a
                   unique image for you
                 </p>
               </div>
 
               {/* Model Selection with refined UI */}
-              <div className="mb-6 border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-850">
-                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 flex items-center">
+              <div className="mb-6 border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <label className="block text-sm font-medium mb-2 text-gray-700 flex items-center">
                   <FiCpu className="mr-2 text-indigo-500" /> AI Engine
                 </label>
                 <div className="relative w-full">
                   <button
                     type="button"
                     onClick={() => setModelDropdownOpen(!modelDropdownOpen)}
-                    className="flex items-center w-full bg-white dark:bg-gray-800 text-sm h-12 px-4 border border-gray-300 dark:border-gray-600 rounded-lg justify-between text-gray-700 dark:text-gray-200 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm"
+                    className="flex items-center w-full bg-white text-sm h-12 px-4 border border-gray-300 rounded-lg justify-between text-gray-700 hover:border-indigo-500 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm"
                     disabled={isLoading}
                     aria-haspopup="listbox"
                     aria-expanded={modelDropdownOpen}
@@ -208,14 +205,14 @@ export default function ImageGenerationPage() {
                       {getSelectedModelLabel()}
                     </span>
                     <FiChevronDown
-                      className={`ml-2 w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${
+                      className={`ml-2 w-4 h-4 text-gray-500 transition-transform duration-200 ${
                         modelDropdownOpen ? "rotate-180" : ""
                       }`}
                     />
                   </button>
 
                   {modelDropdownOpen && (
-                    <div className="absolute left-0 right-0 z-50 mt-1 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden py-1 text-sm">
+                    <div className="absolute left-0 right-0 z-50 mt-1 bg-white rounded-md border border-gray-200 shadow-lg overflow-hidden py-1 text-sm">
                       <div className="max-h-60 overflow-auto">
                         {modelOptions.map((model) => (
                           <button
@@ -225,15 +222,15 @@ export default function ImageGenerationPage() {
                               setSelectedModel(model.id);
                               setModelDropdownOpen(false);
                             }}
-                            className={`w-full text-left px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center ${
+                            className={`w-full text-left px-3 py-2.5 hover:bg-gray-50 transition-colors flex items-center ${
                               selectedModel === model.id
-                                ? "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400"
-                                : "text-gray-700 dark:text-gray-200"
+                                ? "bg-indigo-50 text-indigo-700"
+                                : "text-gray-700"
                             }`}
                           >
                             <div>
                               <span className="font-medium">{model.label}</span>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                              <p className="text-xs text-gray-500 mt-0.5">
                                 {model.description}
                               </p>
                             </div>
@@ -250,7 +247,7 @@ export default function ImageGenerationPage() {
                 <div>
                   <label
                     htmlFor="prompt"
-                    className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
+                    className="block text-sm font-medium mb-2 text-gray-700"
                   >
                     Describe your vision
                   </label>
@@ -260,7 +257,7 @@ export default function ImageGenerationPage() {
                     onChange={(e) => setPrompt(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="A magical floating island with waterfalls and rainbow bridges..."
-                    className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[120px] text-gray-700 dark:text-gray-200 dark:bg-gray-800 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    className="w-full p-4 border border-gray-300 rounded-xl focus:ring focus:ring-gray-300 focus:border-gray-300 min-h-[120px] text-gray-700 bg-white transition-all placeholder:text-gray-400"
                     disabled={isLoading}
                     aria-label="Image prompt input"
                     tabIndex={0}
@@ -269,7 +266,7 @@ export default function ImageGenerationPage() {
 
                 {/* Prompt Templates with refined design */}
                 <div className="mb-6">
-                  <p className="text-sm font-medium mb-3 text-gray-700 dark:text-gray-300 flex items-center">
+                  <p className="text-sm font-medium mb-3 text-gray-700 flex items-center">
                     <FiImage className="mr-2" /> Need inspiration?
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -278,7 +275,7 @@ export default function ImageGenerationPage() {
                         type="button" // added to prevent form submission
                         key={index}
                         onClick={() => handleTemplateClick(template.text)}
-                        className="px-3 py-2 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-650 rounded-lg text-sm transition-all border border-gray-200 dark:border-gray-600 flex items-center text-gray-700 dark:text-gray-300"
+                        className="px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm transition-all border border-gray-200 flex items-center text-gray-700"
                         disabled={isLoading}
                         aria-label={`Use template: ${template.text}`}
                         tabIndex={0}
@@ -294,7 +291,7 @@ export default function ImageGenerationPage() {
 
                 {/* Aspect Ratio Selection with improved UI */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+                  <label className="block text-sm font-medium text-gray-700 flex items-center">
                     <FiLayout className="mr-2" /> Canvas dimensions:
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -305,8 +302,8 @@ export default function ImageGenerationPage() {
                         onClick={() => setAspectRatio(option.id)}
                         className={`px-3 py-2 rounded-lg text-sm flex items-center border transition-all ${
                           aspectRatio === option.id
-                            ? "bg-indigo-100 dark:bg-indigo-900/40 border-indigo-300 dark:border-indigo-700 text-indigo-800 dark:text-indigo-400 font-medium"
-                            : "bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-650"
+                            ? "bg-indigo-100 border-indigo-300 text-indigo-800 font-medium"
+                            : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
                         }`}
                         disabled={isLoading}
                       >
@@ -319,14 +316,11 @@ export default function ImageGenerationPage() {
 
                 {/* Generate button with professional styling */}
                 <button
-                  type="submit"
-                  className={`w-full py-3 px-4 rounded-xl font-medium text-white transition-all
-                    ${animateSubmit ? "animate-pulse" : ""} 
-                    ${
-                      isLoading
-                        ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                        : "bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-md hover:shadow-lg"
-                    }`}
+                  className={`w-full py-3 px-4 rounded-xl font-medium text-white transition-all ${
+                    isLoading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700 shadow"
+                  } ${animateSubmit && "animate-pulse"}`}
                   disabled={isLoading || !prompt.trim()}
                   aria-label="Generate image"
                   tabIndex={0}
@@ -369,32 +363,32 @@ export default function ImageGenerationPage() {
             {/* Error Display with improved design */}
             {error && (
               <div
-                className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800/40 rounded-xl p-5 mb-8 max-w-3xl mx-auto flex items-start"
+                className="bg-red-50 border border-red-200 rounded-lg p-5 mb-8 max-w-3xl mx-auto flex items-start"
                 role="alert"
               >
-                <FiX className="text-red-500 dark:text-red-400 text-xl mr-3 flex-shrink-0 mt-0.5" />
-                <p className="text-red-700 dark:text-red-400">{error}</p>
+                <FiX className="text-red-500 text-xl mr-3 flex-shrink-0 mt-0.5" />
+                <p className="text-red-700">{error}</p>
               </div>
             )}
 
             {/* Results Display with professional visuals */}
             {(imageUrl || textResponse) && (
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8 mb-10 max-w-3xl mx-auto transform transition-all">
+              <div className="bg-white rounded-lg shadow p-6 mb-10 max-w-3xl mx-auto">
                 <div className="flex items-center mb-6">
-                  <span className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 mr-3">
+                  <span className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 mr-3">
                     <FiMaximize className="text-lg" />
                   </span>
-                  <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+                  <h2 className="text-xl font-semibold text-gray-800">
                     Generated Artwork
                   </h2>
                 </div>
 
                 {textResponse && (
                   <div className="mb-8">
-                    <h3 className="text-md font-medium mb-3 text-gray-700 dark:text-gray-300 flex items-center">
+                    <h3 className="text-md font-medium mb-3 text-gray-700 flex items-center">
                       <FiSun className="mr-2" /> AI's Interpretation:
                     </h3>
-                    <p className="bg-gray-50 dark:bg-gray-750 p-5 rounded-xl text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+                    <p className="bg-gray-50 p-5 rounded-xl text-gray-700 border border-gray-200">
                       {textResponse}
                     </p>
                   </div>
@@ -402,7 +396,7 @@ export default function ImageGenerationPage() {
 
                 {imageUrl && (
                   <div className="space-y-5">
-                    <div className="bg-gray-100 dark:bg-gray-750 p-5 rounded-xl flex justify-center border border-gray-200 dark:border-gray-700">
+                    <div className="bg-gray-100 p-5 rounded-xl flex justify-center border border-gray-200">
                       <img
                         src={imageUrl}
                         alt="AI generated image"
@@ -414,7 +408,7 @@ export default function ImageGenerationPage() {
                       <a
                         href={imageUrl}
                         download="ai-artwork.png"
-                        className="inline-flex items-center bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-650 text-gray-800 dark:text-gray-200 font-medium py-2 px-4 rounded-lg transition-all"
+                        className="inline-flex items-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition-all"
                         aria-label="Download image"
                       >
                         <FiDownload className="mr-2" /> Download
@@ -423,7 +417,7 @@ export default function ImageGenerationPage() {
                         href={imageUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center bg-indigo-100 dark:bg-indigo-900/30 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 font-medium py-2 px-4 rounded-lg transition-all"
+                        className="inline-flex items-center bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-medium py-2 px-4 rounded-lg transition-all"
                         aria-label="View full image"
                       >
                         <FiArrowRight className="mr-2" /> View Full Size
@@ -438,23 +432,23 @@ export default function ImageGenerationPage() {
 
         {activeTab === "gallery" && (
           /* Gallery View with modern masonry-like layout */
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8 max-w-6xl mx-auto">
+          <div className="bg-white rounded-lg shadow p-6 max-w-6xl mx-auto">
             <div className="flex items-center mb-6">
-              <span className="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 mr-3">
+              <span className="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 mr-3">
                 <FiTrello className="text-lg" />
               </span>
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+              <h2 className="text-xl font-semibold text-gray-800">
                 Your Creation Archive
               </h2>
             </div>
 
             {imageHistory.length === 0 ? (
-              <div className="text-center py-16 text-gray-500 dark:text-gray-400">
+              <div className="text-center py-16 text-gray-500">
                 <FiImage className="mx-auto text-4xl mb-4 opacity-30" />
                 <p>You haven't created any images yet.</p>
                 <button
                   onClick={() => setActiveTab("create")}
-                  className="mt-4 px-4 py-2 text-sm text-indigo-600 dark:text-indigo-400 border border-indigo-300 dark:border-indigo-700 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30"
+                  className="mt-4 px-4 py-2 text-sm text-indigo-600 border border-indigo-300 rounded-lg hover:bg-indigo-50"
                 >
                   Start creating
                 </button>
@@ -464,7 +458,7 @@ export default function ImageGenerationPage() {
                 {imageHistory.map((item) => (
                   <div
                     key={item.id}
-                    className="flex flex-col bg-gray-50 dark:bg-gray-750 rounded-xl overflow-hidden shadow-sm hover:shadow transition-all border border-gray-200 dark:border-gray-700"
+                    className="flex flex-col bg-gray-50 rounded-xl overflow-hidden shadow-sm hover:shadow transition-all border border-gray-200"
                   >
                     <div className="h-52 overflow-hidden bg-gray-900 relative group flex items-center justify-center">
                       <img
@@ -491,7 +485,7 @@ export default function ImageGenerationPage() {
                     </div>
                     <div className="p-4 flex-grow flex flex-col">
                       <div className="flex justify-between items-start mb-2">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                        <p className="text-xs text-gray-500 flex items-center">
                           <FiClock className="mr-1 text-gray-400" />
                           {new Date(item.timestamp).toLocaleString(undefined, {
                             month: "short",
@@ -500,16 +494,16 @@ export default function ImageGenerationPage() {
                             minute: "2-digit",
                           })}
                         </p>
-                        <button className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+                        <button className="text-gray-400 hover:text-red-500 transition-colors">
                           <FiHeart />
                         </button>
                       </div>
-                      <p className="text-sm text-gray-800 dark:text-gray-200 font-medium line-clamp-2 mb-auto">
+                      <p className="text-sm text-gray-800 font-medium line-clamp-2 mb-auto">
                         {item.prompt}
                       </p>
                       <div className="flex flex-wrap gap-1 mt-3">
                         {item.model_name && (
-                          <span className="inline-block px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 rounded-full text-xs font-medium text-indigo-700 dark:text-indigo-400">
+                          <span className="inline-block px-2 py-1 bg-indigo-100 rounded-full text-xs font-medium text-indigo-700">
                             {item.model_name.includes("fast")
                               ? "Fast"
                               : "Advanced"}

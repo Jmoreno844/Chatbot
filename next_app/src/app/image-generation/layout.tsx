@@ -11,5 +11,5 @@ export default function HomeLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <BaseLayout metadata={metadata}>{children}</BaseLayout>;
+  return <BaseLayout>{children}</BaseLayout>;
 }

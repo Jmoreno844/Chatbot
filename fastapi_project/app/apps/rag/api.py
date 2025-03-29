@@ -7,6 +7,7 @@ from fastapi import (
     File,
     WebSocket,
     WebSocketDisconnect,
+    status,
 )
 from typing import List, Dict, Any
 import os
@@ -178,6 +179,43 @@ async def get_document(doc_id: str):
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error retrieving document: {str(e)}"
+        )
+
+
+@router.delete("/documents/{doc_id}", status_code=status.HTTP_200_OK)
+async def delete_document(doc_id: str):
+    """Delete a document by ID from both storage and vector store"""
+    try:
+        # First delete from document storage
+        doc_deleted = document_service.delete_document(doc_id)
+        if not doc_deleted:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Document with ID {doc_id} not found",
+            )
+
+        # Then remove from vector store
+        vector_deleted = vector_store.delete_documents_by_id(doc_id)
+        if not vector_deleted:
+            # This is not critical - document might not be in vector store
+            # or already processed, so just log it
+            logging.warning(
+                f"Document {doc_id} was deleted from storage but not found in vector store"
+            )
+
+        return {
+            "message": f"Document {doc_id} deleted successfully",
+            "doc_id": doc_id,
+            "storage_deleted": doc_deleted,
+            "vectors_deleted": vector_deleted,
+        }
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions
+    except Exception as e:
+        logging.error(f"Error during document deletion: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error deleting document: {str(e)}",
         )
 
 

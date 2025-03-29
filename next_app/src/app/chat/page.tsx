@@ -8,7 +8,14 @@ import React, {
 } from "react";
 import { useWebSocket } from "@/app/chat/hooks/useWebSocket";
 import { Message, MessageType } from "@/types/chat";
-import { Send, Loader2, AlertCircle, Wifi, WifiOff } from "lucide-react";
+import { Send, Loader2, WifiOff } from "lucide-react";
+
+// Define an interface for the WebSocket response data
+interface WebSocketResponseData {
+  chunk?: string;
+  done?: boolean;
+  message?: string;
+}
 
 export default function ChatPage() {
   const [input, setInput] = useState<string>("");
@@ -18,7 +25,7 @@ export default function ChatPage() {
   const currentBotMessageId = useRef<string | null>(null);
   const messageProcessed = useRef<boolean>(false);
 
-  const handleMessage = useCallback((data) => {
+  const handleMessage = useCallback((data: WebSocketResponseData) => {
     console.log("WebSocket message received:", data);
 
     if (messageProcessed.current && !currentBotMessageId.current) {
@@ -193,21 +200,12 @@ export default function ChatPage() {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4 bg-white">
         <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-          <div className="flex items-center justify-center mb-6 text-red-500">
-            <AlertCircle className="w-12 h-12" />
+          <div className="flex items-center justify-center mb-6 text-blue-500">
+            <Loader2 className="w-12 h-12 animate-spin" />
           </div>
           <h1 className="text-2xl font-bold text-center mb-4 text-gray-800">
-            Connection Error
+            Connecting
           </h1>
-          <p className="text-center mb-6 text-gray-600">{error}</p>
-          <button
-            onClick={() => reconnect()}
-            className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center space-x-2 transition-colors"
-            aria-label="Try connecting again"
-          >
-            <Wifi className="w-5 h-5" />
-            <span>Try Again</span>
-          </button>
         </div>
       </div>
     );
@@ -223,14 +221,14 @@ export default function ChatPage() {
       )}
 
       <div className="flex-1 overflow-y-auto flex flex-col">
-        <div className="w-7/12 mx-auto flex-grow flex flex-col justify-end">
+        <div className="w-8/12 mx-auto flex-grow flex flex-col justify-end">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center text-gray-500">
                 <h2 className="text-2xl font-semibold mb-2">
-                  Welcome to the Chatbot
+                  Welcome to TechNova Solutions's Customer Support.
                 </h2>
-                <p className="text-lg">Ask me anything!</p>
+                <p className="text-lg">How can we assist you today?</p>
               </div>
             </div>
           ) : (
