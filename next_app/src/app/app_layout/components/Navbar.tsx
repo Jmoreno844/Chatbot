@@ -21,7 +21,7 @@ const Navbar = () => {
         >
           <Menu size={20} />
         </button>
-        <span className="text-xl font-semibold">ChatBot</span>
+        <span className="text-xl font-semibold">AI Hub</span>
       </div>
     </nav>
   );

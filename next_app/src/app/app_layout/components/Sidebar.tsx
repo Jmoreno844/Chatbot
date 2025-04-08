@@ -8,9 +8,9 @@ import { MessageSquare, Home, FileText, Image } from "lucide-react";
 // Navigation items
 const navItems = [
   { path: "/home", label: "Home", icon: Home },
-  { path: "/docs", label: "Documentos", icon: FileText },
+  { path: "/docs", label: "Documents", icon: FileText },
   { path: "/chat", label: "Chat", icon: MessageSquare },
-  { path: "/image-generation", label: "Genera Imagenes", icon: Image },
+  { path: "/image-generation", label: "Image Generator", icon: Image },
 ];
 
 const Sidebar = () => {

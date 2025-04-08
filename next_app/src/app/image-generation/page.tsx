@@ -23,6 +23,7 @@ import {
   FiMaximize,
   FiStar,
   FiTrello,
+  FiCopy,
 } from "react-icons/fi";
 
 // Prompt templates for inspiration with emojis for visual appeal
@@ -78,6 +79,7 @@ export default function ImageGenerationPage() {
   const [animateSubmit, setAnimateSubmit] = useState<boolean>(false);
   const [modelDropdownOpen, setModelDropdownOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<"create" | "gallery">("create");
+  const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null);
 
   const {
     generateImage,
@@ -115,13 +117,18 @@ export default function ImageGenerationPage() {
 
   const handleTemplateClick = (template: string) => {
     setPrompt(template);
-    // Focus the textarea after setting the prompt
     const textareaElement = document.getElementById(
       "prompt"
     ) as HTMLTextAreaElement;
     if (textareaElement) {
       textareaElement.focus();
     }
+  };
+
+  const handleCopyPrompt = (item: ImageHistoryItem) => {
+    navigator.clipboard.writeText(item.prompt);
+    setCopiedPromptId(item.id);
+    setTimeout(() => setCopiedPromptId(null), 1500);
   };
 
   const getSelectedModelLabel = () => {
@@ -131,13 +138,14 @@ export default function ImageGenerationPage() {
 
   return (
     <div className="flex flex-col h-full w-full bg-white">
-      <div className="flex-1 mx-auto max-w-6xl">
+      <div className="flex-1 mx-auto max-w-6xl w-full px-4 sm:px-6 lg:px-8 py-8">
         <header className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-3">
-            Visual AI Studio
+            AI Image Studio
           </h1>
           <p className="text-gray-600 text-base max-w-2xl mx-auto">
-            Create stunning visuals with AI – from concept to reality.
+            Bring your imagination to life. Describe your vision, and let our AI
+            generate stunning, unique visuals.
           </p>
         </header>
 
@@ -169,7 +177,6 @@ export default function ImageGenerationPage() {
 
         {activeTab === "create" && (
           <div className="space-y-8">
-            {/* Input Form with modern, professional design */}
             <div className="bg-white rounded-lg shadow p-6 max-w-3xl mx-auto">
               <div className="mb-6">
                 <div className="flex items-center mb-4">
@@ -186,7 +193,6 @@ export default function ImageGenerationPage() {
                 </p>
               </div>
 
-              {/* Model Selection with refined UI */}
               <div className="mb-6 border border-gray-200 rounded-lg p-4 bg-gray-50">
                 <label className="block text-sm font-medium mb-2 text-gray-700 flex items-center">
                   <FiCpu className="mr-2 text-indigo-500" /> AI Engine
@@ -243,7 +249,6 @@ export default function ImageGenerationPage() {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Prompt input with enhancements */}
                 <div>
                   <label
                     htmlFor="prompt"
@@ -264,7 +269,6 @@ export default function ImageGenerationPage() {
                   />
                 </div>
 
-                {/* Prompt Templates with refined design */}
                 <div className="mb-6">
                   <p className="text-sm font-medium mb-3 text-gray-700 flex items-center">
                     <FiImage className="mr-2" /> Need inspiration?
@@ -272,7 +276,7 @@ export default function ImageGenerationPage() {
                   <div className="flex flex-wrap gap-2">
                     {promptTemplates.map((template, index) => (
                       <button
-                        type="button" // added to prevent form submission
+                        type="button"
                         key={index}
                         onClick={() => handleTemplateClick(template.text)}
                         className="px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm transition-all border border-gray-200 flex items-center text-gray-700"
@@ -289,7 +293,6 @@ export default function ImageGenerationPage() {
                   </div>
                 </div>
 
-                {/* Aspect Ratio Selection with improved UI */}
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700 flex items-center">
                     <FiLayout className="mr-2" /> Canvas dimensions:
@@ -314,7 +317,6 @@ export default function ImageGenerationPage() {
                   </div>
                 </div>
 
-                {/* Generate button with professional styling */}
                 <button
                   className={`w-full py-3 px-4 rounded-xl font-medium text-white transition-all ${
                     isLoading
@@ -360,7 +362,6 @@ export default function ImageGenerationPage() {
               </form>
             </div>
 
-            {/* Error Display with improved design */}
             {error && (
               <div
                 className="bg-red-50 border border-red-200 rounded-lg p-5 mb-8 max-w-3xl mx-auto flex items-start"
@@ -371,15 +372,14 @@ export default function ImageGenerationPage() {
               </div>
             )}
 
-            {/* Results Display with professional visuals */}
             {(imageUrl || textResponse) && (
               <div className="bg-white rounded-lg shadow p-6 mb-10 max-w-3xl mx-auto">
                 <div className="flex items-center mb-6">
-                  <span className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 mr-3">
+                  <span className="w-8 h-8 flex items-center justify-center rounded-full bg-green-100 text-green-600 mr-3">
                     <FiMaximize className="text-lg" />
                   </span>
                   <h2 className="text-xl font-semibold text-gray-800">
-                    Generated Artwork
+                    Your AI Creation
                   </h2>
                 </div>
 
@@ -399,7 +399,7 @@ export default function ImageGenerationPage() {
                     <div className="bg-gray-100 p-5 rounded-xl flex justify-center border border-gray-200">
                       <img
                         src={imageUrl}
-                        alt="AI generated image"
+                        alt={prompt || "AI generated image"}
                         className="max-h-[500px] object-contain rounded-lg shadow-sm transition-all"
                         loading="lazy"
                       />
@@ -431,7 +431,6 @@ export default function ImageGenerationPage() {
         )}
 
         {activeTab === "gallery" && (
-          /* Gallery View with modern masonry-like layout */
           <div className="bg-white rounded-lg shadow p-6 max-w-6xl mx-auto">
             <div className="flex items-center mb-6">
               <span className="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 mr-3">
@@ -458,15 +457,15 @@ export default function ImageGenerationPage() {
                 {imageHistory.map((item) => (
                   <div
                     key={item.id}
-                    className="flex flex-col bg-gray-50 rounded-xl overflow-hidden shadow-sm hover:shadow transition-all border border-gray-200"
+                    className="flex flex-col bg-gray-50 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-gray-200 group"
                   >
-                    <div className="h-52 overflow-hidden bg-gray-900 relative group flex items-center justify-center">
+                    <div className="h-52 overflow-hidden bg-gray-900 relative flex items-center justify-center">
                       <img
                         src={item.url}
                         alt={item.prompt}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-4">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-3">
                         <div className="px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm text-white text-xs">
                           {aspectRatioOptions.find(
                             (a) => a.id === item.aspect_ratio
@@ -484,8 +483,8 @@ export default function ImageGenerationPage() {
                       </div>
                     </div>
                     <div className="p-4 flex-grow flex flex-col">
-                      <div className="flex justify-between items-start mb-2">
-                        <p className="text-xs text-gray-500 flex items-center">
+                      <div className="flex justify-between items-start mb-2 gap-2">
+                        <p className="text-xs text-gray-500 flex items-center flex-shrink-0">
                           <FiClock className="mr-1 text-gray-400" />
                           {new Date(item.timestamp).toLocaleString(undefined, {
                             month: "short",
@@ -494,14 +493,31 @@ export default function ImageGenerationPage() {
                             minute: "2-digit",
                           })}
                         </p>
-                        <button className="text-gray-400 hover:text-red-500 transition-colors">
-                          <FiHeart />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleCopyPrompt(item)}
+                            className="text-gray-400 hover:text-indigo-600 transition-colors p-1 relative"
+                            aria-label="Copy prompt"
+                          >
+                            <FiCopy size={14} />
+                            {copiedPromptId === item.id && (
+                              <span className="absolute -top-6 right-0 text-xs bg-black text-white px-1.5 py-0.5 rounded">
+                                Copied!
+                              </span>
+                            )}
+                          </button>
+                          <button className="text-gray-400 hover:text-red-500 transition-colors p-1">
+                            <FiHeart size={14} />
+                          </button>
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-800 font-medium line-clamp-2 mb-auto">
+                      <p
+                        className="text-sm text-gray-800 font-medium line-clamp-2 mb-2 flex-grow cursor-default"
+                        title={item.prompt}
+                      >
                         {item.prompt}
                       </p>
-                      <div className="flex flex-wrap gap-1 mt-3">
+                      <div className="flex flex-wrap gap-1 mt-auto pt-2">
                         {item.model_name && (
                           <span className="inline-block px-2 py-1 bg-indigo-100 rounded-full text-xs font-medium text-indigo-700">
                             {item.model_name.includes("fast")

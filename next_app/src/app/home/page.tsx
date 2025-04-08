@@ -10,6 +10,8 @@ import {
   FiCode,
   FiGithub,
   FiExternalLink,
+  FiCpu,
+  FiLayers,
 } from "react-icons/fi";
 
 export default function HomePage() {
@@ -18,11 +20,12 @@ export default function HomePage() {
       {/* Hero Section */}
       <header className="pt-16 pb-20 px-4 sm:px-6 text-center">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500 inline-block">
-          AI-Powered Portfolio Project
+          AI Hub: Intelligent Tools Showcase
         </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-          Showcasing intelligent document retrieval and image generation
-          capabilities
+        <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+          Explore advanced AI capabilities through interactive demonstrations of
+          Retrieval-Augmented Generation (RAG) chat and creative image
+          synthesis.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
@@ -43,22 +46,22 @@ export default function HomePage() {
       {/* Main Features Section */}
       <section className="py-16 px-4 sm:px-6 max-w-7xl mx-auto">
         <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-          Powerful AI Features
+          Explore the AI Features
         </h2>
 
         <div className="grid md:grid-cols-2 gap-12">
           {/* RAG Chat Feature */}
-          <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg border border-gray-100">
+          <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg border border-gray-100 flex flex-col">
             <div className="h-48 bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center p-6">
               <FiMessageSquare className="text-white text-6xl" />
             </div>
-            <div className="p-6">
+            <div className="p-6 flex-grow flex flex-col">
               <h3 className="text-2xl font-bold text-gray-800 mb-3">
-                Document-Enhanced Chat
+                Document-Enhanced Chat (RAG)
               </h3>
               <p className="text-gray-600 mb-6">
-                Interact with an AI assistant that leverages your uploaded
-                documents to provide accurate, contextual responses based on
+                Engage with an AI assistant that understands your uploaded
+                documents, providing contextually relevant answers grounded in
                 your specific content.
               </p>
               <div className="space-y-3">
@@ -87,7 +90,7 @@ export default function HomePage() {
                   </p>
                 </div>
               </div>
-              <div className="mt-8">
+              <div className="mt-auto pt-6">
                 <Link
                   href="/chat"
                   className="inline-flex items-center text-indigo-600 font-medium hover:text-indigo-800 transition-colors"
@@ -99,34 +102,33 @@ export default function HomePage() {
           </div>
 
           {/* Image Generation Feature */}
-          <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg border border-gray-100">
+          <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg border border-gray-100 flex flex-col">
             <div className="h-48 bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center p-6">
               <FiImage className="text-white text-6xl" />
             </div>
-            <div className="p-6">
+            <div className="p-6 flex-grow flex flex-col">
               <h3 className="text-2xl font-bold text-gray-800 mb-3">
-                AI Image Generation
+                Creative AI Image Generation
               </h3>
               <p className="text-gray-600 mb-6">
-                Transform your ideas into stunning visuals with our AI image
-                generation tool. Simply describe what you want to see and let AI
-                bring it to life.
+                Transform textual ideas into unique visuals. Describe your
+                concept, choose your style, and let the AI craft your image.
               </p>
               <div className="space-y-3">
                 <div className="flex items-start">
                   <div className="flex-shrink-0 h-6 w-6 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 mr-3">
-                    <FiImage className="h-3 w-3" />
+                    <FiLayers className="h-3 w-3" />
                   </div>
                   <p className="text-gray-600">
-                    Multiple style options and aspect ratios
+                    Multiple models, styles, and aspect ratios available
                   </p>
                 </div>
                 <div className="flex items-start">
                   <div className="flex-shrink-0 h-6 w-6 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 mr-3">
-                    <FiCode className="h-3 w-3" />
+                    <FiCpu className="h-3 w-3" />
                   </div>
                   <p className="text-gray-600">
-                    Powered by state-of-the-art image generation models
+                    Utilizes cutting-edge image synthesis models
                   </p>
                 </div>
                 <div className="flex items-start">
@@ -138,7 +140,7 @@ export default function HomePage() {
                   </p>
                 </div>
               </div>
-              <div className="mt-8">
+              <div className="mt-auto pt-6">
                 <Link
                   href="/image-generation"
                   className="inline-flex items-center text-purple-600 font-medium hover:text-purple-800 transition-colors"
@@ -154,7 +156,7 @@ export default function HomePage() {
       {/* How It Works Section */}
       <section className="py-16 px-4 sm:px-6 max-w-5xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 mb-16">
         <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-          How It Works
+          Under the Hood
         </h2>
 
         <div className="space-y-12">
@@ -167,36 +169,30 @@ export default function HomePage() {
               Retrieval Augmented Generation (RAG)
             </h3>
             <p className="text-gray-600 mb-4 pl-11">
-              RAG combines the power of large language models with information
-              retrieval systems to provide accurate, up-to-date responses based
-              on your specific documents.
+              RAG enhances Large Language Models (LLMs) by retrieving relevant
+              information from your documents before generating a response,
+              ensuring accuracy and context.
             </p>
             <div className="pl-11 grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                <h4 className="font-medium text-gray-800 mb-2">
-                  Document Processing
-                </h4>
+                <h4 className="font-medium text-gray-800 mb-2">1. Index</h4>
                 <p className="text-sm text-gray-600">
-                  Your documents are processed, chunked, and embedded for
-                  semantic search
+                  Documents are processed and indexed for efficient semantic
+                  search.
                 </p>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                <h4 className="font-medium text-gray-800 mb-2">
-                  Context Retrieval
-                </h4>
+                <h4 className="font-medium text-gray-800 mb-2">2. Retrieve</h4>
                 <p className="text-sm text-gray-600">
-                  When you ask a question, the system finds the most relevant
-                  information
+                  Your query retrieves the most relevant text chunks from the
+                  index.
                 </p>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                <h4 className="font-medium text-gray-800 mb-2">
-                  Enhanced Response
-                </h4>
+                <h4 className="font-medium text-gray-800 mb-2">3. Generate</h4>
                 <p className="text-sm text-gray-600">
-                  The AI generates answers based on both its knowledge and your
-                  documents
+                  The LLM uses the retrieved context to generate an informed
+                  response.
                 </p>
               </div>
             </div>
@@ -211,34 +207,28 @@ export default function HomePage() {
               AI Image Generation
             </h3>
             <p className="text-gray-600 mb-4 pl-11">
-              Using advanced diffusion models, the system translates your text
-              descriptions into visual content, allowing you to create unique
-              images for any purpose.
+              Advanced diffusion models interpret your text prompts to
+              synthesize novel images, offering control over style and
+              composition.
             </p>
             <div className="pl-11 grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                <h4 className="font-medium text-gray-800 mb-2">
-                  Prompt Engineering
-                </h4>
+                <h4 className="font-medium text-gray-800 mb-2">1. Prompt</h4>
                 <p className="text-sm text-gray-600">
-                  Describe what you want to see with detailed text prompts
+                  Provide a detailed text description of the desired image.
                 </p>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                <h4 className="font-medium text-gray-800 mb-2">
-                  Image Synthesis
-                </h4>
+                <h4 className="font-medium text-gray-800 mb-2">2. Synthesize</h4>
                 <p className="text-sm text-gray-600">
-                  AI models convert your text into pixel-perfect visual
-                  representations
+                  AI models iteratively generate pixels based on the prompt.
                 </p>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                <h4 className="font-medium text-gray-800 mb-2">
-                  Customization
-                </h4>
+                <h4 className="font-medium text-gray-800 mb-2">3. Refine</h4>
                 <p className="text-sm text-gray-600">
-                  Adjust parameters and settings to refine your generated images
+                  Adjust parameters like model, aspect ratio, and style (if
+                  applicable).
                 </p>
               </div>
             </div>
@@ -270,11 +260,11 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-16 px-4 sm:px-6 max-w-4xl mx-auto text-center mb-16">
         <h2 className="text-3xl font-bold mb-6 text-gray-800">
-          Ready to Explore?
+          Ready to Dive In?
         </h2>
         <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-          Discover the power of AI-enhanced document chat and image generation
-          in this portfolio project.
+          Experience the capabilities firsthand. Try the RAG chat or generate
+          some unique AI images.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
@@ -294,22 +284,26 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="py-8 px-4 sm:px-6 border-t border-gray-200">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-center md:text-left">
           <p className="text-gray-600 mb-4 md:mb-0">
-            Portfolio Project — Built with Next.js & AI
+            AI Hub Portfolio Project by Sebastian Moreno
           </p>
           <div className="flex gap-4">
             <a
-              href="https://github.com"
+              href="[Your GitHub Repo Link]"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-600 hover:text-gray-900 transition-colors"
+              aria-label="View source code on GitHub"
             >
               <FiGithub size={20} />
             </a>
             <a
-              href="#"
+              href="[Your Portfolio/LinkedIn Link]"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-gray-600 hover:text-gray-900 transition-colors"
+              aria-label="View developer profile"
             >
               <FiExternalLink size={20} />
             </a>
