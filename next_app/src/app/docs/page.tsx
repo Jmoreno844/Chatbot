@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { useDocuments } from "./hooks/useDocuments";
 
 export default function DocumentsPage() {
-  const { documents, loading, error, uploadDocument, deleteDocument } =
+  const { documents, loading, error, uploadDocuments, deleteDocument } =
     useDocuments();
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -23,15 +23,35 @@ export default function DocumentsPage() {
     setUploadSuccess(null);
 
     try {
-      await uploadDocument(files[0]);
-      setUploadSuccess("Document uploaded successfully!");
+      const response = await uploadDocuments(files);
+
+      const successfulUploads = response.results.filter((r) => r.success).length;
+      const failedUploads = response.results.length - successfulUploads;
+
+      if (successfulUploads > 0) {
+        setUploadSuccess(`${successfulUploads} document(s) uploaded successfully.`);
+      }
+      if (failedUploads > 0) {
+        setUploadError(`${failedUploads} document(s) failed to upload. Check console for details.`);
+        response.results
+          .filter((r) => !r.success)
+          .forEach((r) => {
+            console.error(`Upload failed for ${r.filename}: ${r.message}`);
+          });
+      }
+
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     } catch (err) {
-      setUploadError("Failed to upload document. Please try again.");
+      console.error("Upload request failed:", err);
+      setUploadError("An unexpected error occurred during the upload request.");
     } finally {
       setUploading(false);
+      setTimeout(() => {
+        setUploadSuccess(null);
+        setUploadError(null);
+      }, 5000);
     }
   };
 
@@ -50,12 +70,31 @@ export default function DocumentsPage() {
     setUploadSuccess(null);
 
     try {
-      await uploadDocument(files[0]);
-      setUploadSuccess("Document uploaded successfully!");
+      const response = await uploadDocuments(files);
+
+      const successfulUploads = response.results.filter((r) => r.success).length;
+      const failedUploads = response.results.length - successfulUploads;
+
+      if (successfulUploads > 0) {
+        setUploadSuccess(`${successfulUploads} document(s) uploaded successfully.`);
+      }
+      if (failedUploads > 0) {
+        setUploadError(`${failedUploads} document(s) failed to upload. Check console for details.`);
+        response.results
+          .filter((r) => !r.success)
+          .forEach((r) => {
+            console.error(`Upload failed for ${r.filename}: ${r.message}`);
+          });
+      }
     } catch (err) {
-      setUploadError("Failed to upload document. Please try again.");
+      console.error("Upload request failed:", err);
+      setUploadError("An unexpected error occurred during the upload request.");
     } finally {
       setUploading(false);
+      setTimeout(() => {
+        setUploadSuccess(null);
+        setUploadError(null);
+      }, 5000);
     }
   };
 
@@ -85,11 +124,9 @@ export default function DocumentsPage() {
       setDeleteSuccess(
         `Document ${docId.substring(0, 8)}... deleted successfully`
       );
-      // Clear success message after 3 seconds
       setTimeout(() => setDeleteSuccess(null), 3000);
     } catch (err) {
       setDeleteError(`Failed to delete document. Please try again.`);
-      // Clear error message after 3 seconds
       setTimeout(() => setDeleteError(null), 3000);
     } finally {
       setDeletingId(null);
@@ -115,7 +152,7 @@ export default function DocumentsPage() {
         onClick={() => fileInputRef.current?.click()}
         tabIndex={0}
         role="button"
-        aria-label="Upload document area. Click or drag and drop a file here."
+        aria-label="Upload documents area. Click or drag and drop files here."
         onKeyDown={handleKeyDown}
       >
         <div className="text-center">
@@ -135,7 +172,7 @@ export default function DocumentsPage() {
             />
           </svg>
           <p className="mt-1">
-            Drag and drop a file here, or click to select a file
+            Drag and drop files here, or click to select files
           </p>
           <p className="text-xs text-gray-500 mt-1">
             Supported file formats: PDF, TXT, DOCX
@@ -148,13 +185,14 @@ export default function DocumentsPage() {
           onChange={handleFileUpload}
           accept=".pdf,.txt,.doc,.docx"
           aria-label="File upload input"
+          multiple
         />
       </div>
 
       {uploading && (
         <div className="mb-4 text-center">
           <div className="inline-block w-6 h-6 border-2 border-t-blue-500 border-gray-200 rounded-full animate-spin"></div>
-          <p className="mt-2">Uploading document...</p>
+          <p className="mt-2">Uploading documents...</p>
         </div>
       )}
 

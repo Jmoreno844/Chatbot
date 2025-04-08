@@ -29,3 +29,16 @@ class QueryResult(BaseModel):
 
 class QueryResponse(BaseModel):
     results: List[QueryResult]
+
+
+class FileUploadResult(BaseModel):
+    filename: str
+    success: bool
+    message: str
+    doc_id: Optional[str] = None
+    chunk_count: Optional[int] = None
+
+
+class BatchUploadResponse(BaseModel):
+    results: List[FileUploadResult]
+    overall_message: str
